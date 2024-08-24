@@ -637,3 +637,668 @@ In addition to the terminal output, Jest generates an HTML coverage report in th
 Using Jest’s coverage reporting tools helps ensure that your tests cover a significant portion of your code. By running `npm run coverage`, you can easily track test coverage and make informed decisions about where to add or improve tests.
 
 ---
+
+# Assertions in Jest
+
+## Overview
+
+Assertions are the foundation of automated testing. They are statements that check whether a specific condition is true. If the condition is true, the test passes; if not, the test fails. Using assertions, you can verify that your code behaves as expected and meets the requirements.
+
+## Common Jest Assertions
+
+Jest provides a wide range of assertion methods that you can use to validate different types of conditions. Here are some commonly used assertions:
+
+- **`toBe(value)`**: Checks if a value is strictly equal (`===`) to the expected value.
+  ```js
+  expect(2 + 2).toBe(4);
+  ```
+
+- **`toEqual(value)`**: Checks if a value deeply equals the expected value, useful for objects and arrays.
+  ```js
+  expect({ name: 'John' }).toEqual({ name: 'John' });
+  ```
+
+- **`toBeTruthy()`**: Checks if a value is truthy (evaluates to true in a boolean context).
+  ```js
+  expect('hello').toBeTruthy();
+  ```
+
+- **`toBeFalsy()`**: Checks if a value is falsy (evaluates to false in a boolean context).
+  ```js
+  expect('').toBeFalsy();
+  ```
+
+- **`toBeNull()`**: Checks if a value is `null`.
+  ```js
+  expect(null).toBeNull();
+  ```
+
+- **`toBeDefined()`**: Checks if a value is defined (not `undefined`).
+  ```js
+  expect(variable).toBeDefined();
+  ```
+
+- **`toContain(item)`**: Checks if an array or string contains a specific item.
+  ```js
+  expect([1, 2, 3]).toContain(2);
+  ```
+
+- **`toHaveLength(number)`**: Checks if an array or string has the expected length.
+  ```js
+  expect([1, 2, 3]).toHaveLength(3);
+  ```
+
+- **`toMatch(regex)`**: Checks if a string matches a regular expression.
+  ```js
+  expect('hello world').toMatch(/world/);
+  ```
+
+- **`toThrow(error)`**: Checks if a function throws an error.
+  ```js
+  function badFunction() {
+    throw new Error('Error occurred');
+  }
+  expect(badFunction).toThrow('Error occurred');
+  ```
+
+## Example: Testing the `GreetTDD` Component
+
+Let's look at an example where we test the `GreetTDD` component using assertions.
+
+### `GreetTDD.jsx` Component
+
+```js
+import React from 'react';
+
+const GreetTDD = (props) => {
+  return (
+    <div>Hello {props.name}</div>
+  );
+};
+
+export default GreetTDD;
+```
+
+### Test Cases with Assertions
+
+```js
+import { render, screen } from "@testing-library/react";
+import GreetTDD from "./GreetTDD";
+
+test("GreetTDD renders correctly", () => {
+  render(<GreetTDD />);
+  const textElement = screen.getByText("Hello");
+  expect(textElement).toBeInTheDocument();  // Assertion to check if "Hello" is rendered
+});
+
+test("GreetTDD renders with name", () => {
+  render(<GreetTDD name="Manish" />);
+  const textElement = screen.getByText("Hello Manish");
+  expect(textElement).toBeInTheDocument();  // Assertion to check if "Hello Manish" is rendered
+});
+```
+
+### Explanation of Assertions
+
+- **`toBeInTheDocument()`**: This assertion checks if the selected element is present in the DOM. In our tests, we're verifying that the "Hello" text is rendered correctly.
+
+- **`screen.getByText()`**: This method is used to select an element by its text content. In the first test, it checks for "Hello", and in the second test, it checks for "Hello Manish".
+
+### Test-Driven Development (TDD) Approach
+
+In a TDD approach, you write tests before writing the actual code. The idea is to define the expected behavior of your component through assertions and then implement the code that satisfies those assertions.
+
+For example, you would write the above test cases first and then create the `GreetTDD` component to make the tests pass.
+
+## Conclusion
+
+Assertions are a powerful tool for verifying the behavior of your code. By using Jest's built-in assertion methods, you can ensure that your components and functions work as expected, leading to more reliable and maintainable code.
+
+---
+
+# React Testing Library (RTL) Queries
+
+## Overview
+
+React Testing Library (RTL) provides a set of methods to query and interact with elements in your React components during testing. These queries help you select elements based on different attributes like role, label text, placeholder text, and more. Understanding how to use these queries effectively is key to writing robust and maintainable tests.
+
+## Types of Queries
+
+### 1. **`getBy` Queries**
+- **Description**: `getBy` queries throw an error if no matching element is found. They are suitable for finding elements that are expected to be present in the DOM immediately.
+- **Example**:
+  ```javascript
+  const buttonElement = screen.getByRole('button');
+  ```
+
+### 2. **`queryBy` Queries**
+- **Description**: `queryBy` queries return `null` if no matching element is found. They are useful when you expect an element might not be present.
+- **Example**:
+  ```javascript
+  const alertElement = screen.queryByText('Error');
+  ```
+
+### 3. **`findBy` Queries**
+- **Description**: `findBy` queries return a promise that resolves when the element is found or rejects if it is not found within the timeout. They are useful for testing asynchronous code.
+- **Example**:
+  ```javascript
+  const loadingElement = await screen.findByText('Loading...');
+  ```
+
+### 4. **`getAllBy` Queries**
+- **Description**: `getAllBy` queries return all matching elements. If no elements match, it throws an error.
+- **Example**:
+  ```javascript
+  const listItems = screen.getAllByRole('listitem');
+  ```
+
+### 5. **`queryAllBy` Queries**
+- **Description**: `queryAllBy` queries return all matching elements or an empty array if no elements are found.
+- **Example**:
+  ```javascript
+  const menuItems = screen.queryAllByRole('menuitem');
+  ```
+
+### 6. **`findAllBy` Queries**
+- **Description**: `findAllBy` queries return a promise that resolves when all matching elements are found or rejects if none are found within the timeout.
+- **Example**:
+  ```javascript
+  const images = await screen.findAllByAltText('user avatar');
+  ```
+
+## Suffixes: How to Use Them
+
+The suffixes help you specify which attribute you want to query by:
+
+- **`Role`**: Finds elements by their ARIA role.
+  - Example: `getByRole('button')`
+- **`LabelText`**: Finds elements by the text associated with a `<label>`.
+  - Example: `getByLabelText('Username')`
+- **`PlaceholderText`**: Finds elements by their `placeholder` attribute.
+  - Example: `getByPlaceholderText('Enter your name')`
+- **`Text`**: Finds elements by their text content.
+  - Example: `getByText('Submit')`
+- **`DisplayValue`**: Finds elements by the current value of the form element.
+  - Example: `getByDisplayValue('John Doe')`
+- **`AltText`**: Finds elements by the `alt` attribute, typically used for images.
+  - Example: `getByAltText('Profile picture')`
+- **`Title`**: Finds elements by their `title` attribute.
+  - Example: `getByTitle('Close')`
+- **`TestId`**: Finds elements by the `data-testid` attribute.
+  - Example: `getByTestId('custom-element')`
+
+## Examples
+
+Here’s how you might use these queries in a test:
+
+```javascript
+import { render, screen } from "@testing-library/react";
+import { Application } from "./Application";
+
+describe("Application", () => {
+    test("renders correctly", () => {
+        render(<Application />);
+        
+        const nameElement = screen.getByRole("textbox"); // Query by Role
+        expect(nameElement).toBeInTheDocument();
+
+        const jobLocation = screen.getByRole("combobox"); // Query by Role
+        expect(jobLocation).toBeInTheDocument();
+
+        const termsElement = screen.getByRole("checkbox"); // Query by Role
+        expect(termsElement).toBeInTheDocument();
+
+        const submitElement = screen.getByRole("button"); // Query by Role
+        expect(submitElement).toBeInTheDocument();
+    });
+
+    test("checks the placeholder text", () => {
+        render(<Application />);
+        
+        const nameInput = screen.getByPlaceholderText("Enter your name");
+        expect(nameInput).toBeInTheDocument();
+    });
+
+    test("finds an element by testId", () => {
+        render(<Application />);
+        
+        const customElement = screen.getByTestId("custom-element");
+        expect(customElement).toBeInTheDocument();
+    });
+});
+```
+
+## Best Practices
+
+- Prefer `getBy` and `getAllBy` for elements that should always be present.
+- Use `queryBy` and `queryAllBy` for elements that may or may not be present.
+- Use `findBy` and `findAllBy` for asynchronous operations.
+
+## Conclusion
+
+Understanding and utilizing the different types of queries provided by RTL is essential for writing effective and reliable tests. By leveraging the appropriate query method and suffix, you can more accurately target elements in your component's DOM, making your tests more meaningful and resilient.
+
+---
+
+# Application Component Testing with `getByRole`
+
+## Overview
+
+This section explains how to test the `Application` component using Jest and React Testing Library (RTL). The focus is on using the `getByRole` query to select elements by their roles in the component.
+
+## Application Component
+
+The `Application` component renders a simple form that includes:
+
+- A text input for "Name"
+- A dropdown (select) for "Job location"
+- A checkbox for agreeing to terms and conditions
+- A submit button
+
+### Component Code
+
+```javascript
+// src/components/getByRole/application/Application.jsx
+
+export const Application = () => {
+    return (
+        <form>
+            <div>
+                <label htmlFor="name">Name</label>
+                <input type="text" id="name" />
+            </div>
+            <div>
+                <label htmlFor="job-location">Job location</label>
+                <select id="job-location">
+                    <option value="">Select a country</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="IN">India</option>
+                    <option value="AU">Australia</option>
+                </select>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" id="terms" /> I agree to the terms and
+                    conditions
+                </label>
+            </div>
+            <button>Submit</button>
+        </form>
+    );
+};
+```
+
+## Testing the Application Component
+
+### Test Structure
+
+The test suite for the `Application` component uses the `getByRole` method from React Testing Library to verify the presence of form elements. Each form element has an associated ARIA role, which makes `getByRole` an ideal choice for selecting these elements.
+
+### Test Code
+
+```javascript
+// src/components/getByRole/application/application.test.jsx
+
+import { render, screen } from "@testing-library/react";
+import { Application } from "./Application";
+
+describe("Application", () => {
+    test("renders correctly", () => {
+        render(<Application />);
+        
+        const nameElement = screen.getByRole("textbox");
+        expect(nameElement).toBeInTheDocument();
+
+        const jobLocation = screen.getByRole("combobox");
+        expect(jobLocation).toBeInTheDocument();
+
+        const termsElement = screen.getByRole("checkbox");
+        expect(termsElement).toBeInTheDocument();
+
+        const submitElement = screen.getByRole("button");
+        expect(submitElement).toBeInTheDocument();
+    });
+});
+```
+
+### Explanation of Test Cases
+
+- **`getByRole("textbox")`**: Selects the text input for the "Name" field.
+- **`getByRole("combobox")`**: Selects the dropdown for "Job location."
+- **`getByRole("checkbox")`**: Selects the checkbox for terms and conditions.
+- **`getByRole("button")`**: Selects the submit button.
+
+### Running the Tests
+
+To run the tests, use the following command in your terminal:
+
+```bash
+npm test
+```
+
+You should see output indicating that all tests have passed.
+
+### Directory Structure
+
+Here’s the directory structure for this component and its tests:
+
+```
+src
+│
+├── components
+│   └── getByRole
+│       └── application
+│           ├── Application.jsx
+│           └── application.test.jsx
+│
+├── App.js
+├── App.test.js
+├── index.js
+└── README.md
+```
+
+This structure helps in organizing your components and tests logically within the project.
+
+## Conclusion
+
+Using the `getByRole` method provides a reliable way to select elements in your tests based on their roles, which improves accessibility testing. The above tests ensure that the `Application` component renders all the necessary form elements correctly.
+
+---
+
+# React Testing Library: `getByRole` with Options
+
+## Overview
+
+In React Testing Library, `getByRole` is a powerful query for selecting elements by their ARIA roles. However, when there are multiple elements with the same role on the page, using `getByRole` alone can result in errors due to ambiguity. To handle this, you can pass additional options to `getByRole` to precisely target the element you want to interact with.
+
+## Usage of `getByRole`
+
+### Basic Usage
+
+The basic `getByRole` query is used to find elements based on their ARIA role. For example, if you want to find a button, you might use:
+
+```javascript
+const submitElement = screen.getByRole("button");
+expect(submitElement).toBeInTheDocument();
+```
+
+### Handling Multiple Elements with the Same Role
+
+When there are multiple elements with the same role (e.g., multiple `textbox` elements), using `getByRole` without options will result in an error:
+
+```javascript
+// This will throw an error if there are multiple textboxes
+const nameElement = screen.getByRole("textbox");
+```
+
+To avoid this, you can use the `name` option to specify the label text associated with the element:
+
+### Using the `name` Option
+
+The `name` option allows you to target an element by the text content of its associated label:
+
+```javascript
+const nameElement = screen.getByRole("textbox", {
+    name: "Name" // This targets the input with the label "Name"
+});
+expect(nameElement).toBeInTheDocument();
+```
+
+### Example
+
+Here’s a complete example demonstrating the use of `getByRole` with options in a form that includes multiple elements with the same role:
+
+```javascript
+export const Application = () => {
+    return (
+        <form>
+            <div>
+                <label htmlFor="name">Name</label>
+                <input type="text" id="name" />
+            </div>
+            <div>
+                <label htmlFor="bio">Bio</label>
+                <textarea id="bio" name="bio" />
+            </div>
+            <div>
+                <label htmlFor="job-location">Job location</label>
+                <select id="job-location">
+                    <option value="">Select a country</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="IN">India</option>
+                    <option value="AU">Australia</option>
+                </select>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" id="terms" /> I agree to the terms and
+                    conditions
+                </label>
+            </div>
+            <button>Submit</button>
+        </form>
+    );
+};
+
+import { render, screen } from "@testing-library/react";
+import { Application } from "./Application";
+
+describe("Application", () => {
+    test("renders correctly", () => {
+        render(<Application />);
+
+        // Target the specific textbox by its label
+        const nameElement = screen.getByRole("textbox", {
+            name: "Name"
+        });
+        expect(nameElement).toBeInTheDocument();
+
+        const jobLocation = screen.getByRole("combobox");
+        expect(jobLocation).toBeInTheDocument();
+
+        const termsElement = screen.getByRole("checkbox");
+        expect(termsElement).toBeInTheDocument();
+
+        const submitElement = screen.getByRole("button");
+        expect(submitElement).toBeInTheDocument();
+    });
+});
+```
+
+## Options for `getByRole`
+
+Here are some common options you can pass to `getByRole`:
+
+- **`name`**: The accessible name of the element, usually derived from the element’s label or content.
+  - Example: `{ name: 'Submit' }`
+
+- **`checked`**: For form controls, whether the element is checked.
+  - Example: `{ checked: true }`
+
+- **`selected`**: For options within a `select` element, whether the option is selected.
+  - Example: `{ selected: true }`
+
+- **`level`**: For heading elements (`h1`, `h2`, etc.), specifies the heading level.
+  - Example: `{ level: 1 }`
+
+## Best Practices
+
+- Always use `getByRole` with options when there are multiple elements with the same role to avoid ambiguity.
+- Leverage the `name` option to target elements based on their label text, which enhances the readability and reliability of your tests.
+
+## Conclusion
+
+Using `getByRole` with options allows you to write more precise and maintainable tests by disambiguating between elements with the same role. This is especially useful in complex forms and interfaces where multiple interactive elements share the same role.
+
+---
+
+# React Testing Library: `getByLabelText`
+
+## Overview
+
+In React Testing Library, `getByLabelText` is a query used to select form elements based on their associated labels. This is particularly useful for testing forms, where you want to ensure that inputs, text areas, and other form controls are correctly labeled and accessible.
+
+## Why Use `getByLabelText`?
+
+Using `getByLabelText` ensures that your tests are closely aligned with how users interact with the form. When a user interacts with a form, they typically read the labels associated with each input. `getByLabelText` mimics this behavior by selecting elements based on their labels, making your tests more reliable and user-centric.
+
+## Basic Usage
+
+The `getByLabelText` query finds elements by matching them with their associated `<label>` element. It works with all types of form controls, including `input`, `textarea`, `select`, and others.
+
+### Example
+
+Let’s consider a form with inputs for a user's name, bio, job location, and a checkbox for terms and conditions:
+
+```javascript
+export const Application = () => {
+    return (
+        <form>
+            <div>
+                <label htmlFor="name">Name</label>
+                <input type="text" id="name" />
+            </div>
+            <div>
+                <label htmlFor="bio">Bio</label>
+                <textarea id="bio" name="bio" />
+            </div>
+            <div>
+                <label htmlFor="job-location">Job location</label>
+                <select id="job-location">
+                    <option value="">Select a country</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="IN">India</option>
+                    <option value="AU">Australia</option>
+                </select>
+            </div>
+            <div>
+                <label>
+                    <input type="checkbox" id="terms" /> I agree to the terms and
+                    conditions
+                </label>
+            </div>
+            <button>Submit</button>
+        </form>
+    );
+};
+```
+
+### Testing with `getByLabelText`
+
+Here’s how you can write tests using `getByLabelText` to target these elements:
+
+```javascript
+import { render, screen } from "@testing-library/react";
+import { Application } from "./Application";
+
+describe("Application", () => {
+    test("renders the form correctly", () => {
+        render(<Application />);
+
+        // Targeting input by label "Name"
+        const nameInput = screen.getByLabelText("Name");
+        expect(nameInput).toBeInTheDocument();
+
+        // Targeting textarea by label "Bio"
+        const bioTextarea = screen.getByLabelText("Bio");
+        expect(bioTextarea).toBeInTheDocument();
+
+        // Targeting select by label "Job location"
+        const jobLocationSelect = screen.getByLabelText("Job location");
+        expect(jobLocationSelect).toBeInTheDocument();
+
+        // Targeting checkbox by partial label match
+        const termsCheckbox = screen.getByLabelText(/terms and conditions/i);
+        expect(termsCheckbox).toBeInTheDocument();
+    });
+});
+```
+
+## Best Practices
+
+- **Use Labels Effectively**: Always associate form elements with labels using the `htmlFor` attribute. This improves accessibility and makes your tests more robust.
+- **Case Insensitivity**: You can use regular expressions with `getByLabelText` to match labels in a case-insensitive manner, as shown in the checkbox example.
+- **Clear Labeling**: Ensure that your form labels are clear and descriptive, as this will make your tests more intuitive and easier to maintain.
+
+## Conclusion
+
+`getByLabelText` is a valuable tool in React Testing Library for selecting and interacting with form elements based on their labels. It promotes accessibility and mirrors the way users interact with forms, resulting in tests that are both user-focused and maintainable.
+
+---
+
+# React Testing Library: `getByPlaceholderText`
+
+## Overview
+
+The `getByPlaceholderText` query in React Testing Library allows you to select form elements based on the placeholder text within them. This query is particularly useful when testing forms where placeholders are used to guide users on what input is expected in a particular field.
+
+## Why Use `getByPlaceholderText`?
+
+Placeholder text is often used as a hint for the user, providing an example or instruction inside an input field before the user enters any data. Testing for these placeholders can ensure that your application is providing the right guidance and maintaining consistent user experience.
+
+## Basic Usage
+
+The `getByPlaceholderText` query targets input elements (such as `input`, `textarea`, etc.) by matching the text inside the `placeholder` attribute.
+
+### Example
+
+Let’s consider a simple form where a user is required to enter their email and password, both of which have placeholder text.
+
+```javascript
+export const LoginForm = () => {
+    return (
+        <form>
+            <div>
+                <label htmlFor="email">Email</label>
+                <input type="email" id="email" placeholder="Enter your email" />
+            </div>
+            <div>
+                <label htmlFor="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" />
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    );
+};
+```
+
+### Testing with `getByPlaceholderText`
+
+You can write tests to ensure that the placeholders are rendered correctly:
+
+```javascript
+import { render, screen } from "@testing-library/react";
+import { LoginForm } from "./LoginForm";
+
+describe("LoginForm", () => {
+    test("renders the email and password inputs correctly", () => {
+        render(<LoginForm />);
+
+        // Targeting email input by its placeholder text
+        const emailInput = screen.getByPlaceholderText("Enter your email");
+        expect(emailInput).toBeInTheDocument();
+
+        // Targeting password input by its placeholder text
+        const passwordInput = screen.getByPlaceholderText("Enter your password");
+        expect(passwordInput).toBeInTheDocument();
+    });
+});
+```
+
+## Best Practices
+
+- **Be Descriptive with Placeholders**: Ensure that your placeholder text is descriptive and informative, as it serves as a key guide for users.
+- **Placeholder Text vs. Labels**: While placeholders can provide helpful hints, they should not replace labels. Always use labels in conjunction with placeholders to ensure accessibility.
+- **Avoid Overusing Placeholders**: Placeholders should be used sparingly and only when they add value to the user experience. Overusing them can lead to cluttered interfaces and diminished accessibility.
+
+## Conclusion
+
+`getByPlaceholderText` is a straightforward yet powerful query in React Testing Library that helps you test the presence and accuracy of placeholders in your forms. By ensuring that your placeholders are correct, you can maintain a better user experience and provide clear guidance to your users.
+
+---
